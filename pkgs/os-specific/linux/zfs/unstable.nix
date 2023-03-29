@@ -2,6 +2,7 @@
 , kernel ? null
 , stdenv
 , linuxKernel
+, removeLinuxDRM ? false
 , ...
 } @ args:
 
@@ -13,12 +14,12 @@ callPackage ./generic.nix args {
   # NOTE:
   #   zfs-2.1.9<=x<=2.1.10 is broken with aarch64-linux-6.2
   #   for future releases, please delete this condition.
-  kernelCompatible = if stdenv'.isx86_64
-    then kernel.kernelOlder "6.3"
+  kernelCompatible = if (stdenv'.isx86_64 || removeLinuxDRM)
+    then kernel.kernelOlder "6.4"
     else kernel.kernelOlder "6.2";
   latestCompatibleLinuxPackages =
-    if stdenv'.isx86_64
-    then linuxKernel.packages.linux_6_2
+    if (stdenv'.isx86_64 || removeLinuxDRM)
+    then linuxKernel.packages.linux_6_3
     else linuxKernel.packages.linux_6_1;
 
   # this package should point to a version / git revision compatible with the latest kernel release
