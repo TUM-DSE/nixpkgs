@@ -1,6 +1,6 @@
 { lib, stdenv, fetchFromGitHub, cmake, kernel, installShellFiles, pkg-config
 , luajit, ncurses, perl, jsoncpp, libb64, openssl, curl, jq, gcc, elfutils, tbb, protobuf, grpc
-, libyamlcpp, nlohmann_json, re2, zstd
+, libyamlcpp, nlohmann_json, re2, zstd, fetchpatch
 }:
 
 let
@@ -93,8 +93,11 @@ stdenv.mkDerivation rec {
     "-DCREATE_TEST_TARGETS=OFF"
   ] ++ lib.optional (kernel == null) "-DBUILD_DRIVER=OFF";
 
-  # needed since luajit-2.1.0-beta3
-  NIX_CFLAGS_COMPILE = "-DluaL_reg=luaL_Reg -DluaL_getn(L,i)=((int)lua_objlen(L,i))";
+  NIX_CFLAGS_COMPILE =
+   # needed since luajit-2.1.0-beta3
+   "-DluaL_reg=luaL_Reg -DluaL_getn(L,i)=((int)lua_objlen(L,i)) " +
+   # fix compiler warnings been treated as errors
+   "-Wno-error";
 
   preConfigure = ''
     if ! grep -q "${libsRev}" cmake/modules/falcosecurity-libs.cmake; then
