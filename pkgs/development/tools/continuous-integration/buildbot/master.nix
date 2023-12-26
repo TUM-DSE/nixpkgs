@@ -35,6 +35,10 @@
 , openssh
 , setuptools
 , pythonRelaxDepsHook
+, croniter
+, importlib-resources
+, packaging
+, unidiff
 , glibcLocales
 , nixosTests
 }:
@@ -71,11 +75,98 @@ buildPythonApplication rec {
   version = "3.9.2";
   format = "pyproject";
 
-  disabled = pythonOlder "3.7";
+  package = buildPythonApplication rec {
+    pname = "buildbot";
+    version = "3.10.1";
+    format = "pyproject";
 
-  src = fetchPypi {
-    inherit pname version;
-    hash = "sha256-7QhIMUpzmxbh8qjz0hgqzibLkWADhTV523neo1wpGSA=";
+    disabled = pythonOlder "3.8";
+
+    src = fetchPypi {
+      inherit pname version;
+      hash = "sha256-/J4jWoIZEObSZKw04Ib6h4AvJtfNwzwozRu+gFek1Dk=";
+    };
+
+    propagatedBuildInputs = [
+      # core
+      twisted
+      jinja2
+      msgpack
+      zope_interface
+      sqlalchemy
+      alembic
+      python-dateutil
+      txaio
+      autobahn
+      pyjwt
+      pyyaml
+      setuptools
+      croniter
+      importlib-resources
+      packaging
+      unidiff
+    ]
+      # tls
+      ++ twisted.optional-dependencies.tls;
+
+    nativeCheckInputs = [
+      treq
+      txrequests
+      pypugjs
+      boto3
+      moto
+      markdown
+      lz4
+      setuptools-trial
+      buildbot-worker
+      buildbot-pkg
+      buildbot-plugins.www
+      parameterized
+      git
+      openssh
+      glibcLocales
+    ];
+
+    patches = [
+      # This patch disables the test that tries to read /etc/os-release which
+      # is not accessible in sandboxed builds.
+      ./skip_test_linux_distro.patch
+    ];
+
+    postPatch = ''
+      substituteInPlace buildbot/scripts/logwatcher.py --replace '/usr/bin/tail' "$(type -P tail)"
+    '';
+
+    # Silence the depreciation warning from SqlAlchemy
+    SQLALCHEMY_SILENCE_UBER_WARNING = 1;
+
+    # TimeoutErrors on slow machines -> aarch64
+    doCheck = !stdenv.isAarch64;
+
+    preCheck = ''
+      export LC_ALL="en_US.UTF-8"
+      export PATH="$out/bin:$PATH"
+
+      # remove testfile which is missing configuration file from sdist
+      rm buildbot/test/integration/test_graphql.py
+      # tests in this file are flaky, see https://github.com/buildbot/buildbot/issues/6776
+      rm buildbot/test/integration/test_try_client.py
+    '';
+
+    passthru = {
+      inherit withPlugins;
+      tests.buildbot = nixosTests.buildbot;
+      updateScript = ./update.sh;
+    };
+
+    meta = with lib; {
+      description = "An open-source continuous integration framework for automating software build, test, and release processes";
+      homepage = "https://buildbot.net/";
+      changelog = "https://github.com/buildbot/buildbot/releases/tag/v${version}";
+      maintainers = with maintainers; [ ryansydnor lopsided98 ];
+      license = licenses.gpl2Only;
+      broken = stdenv.isDarwin;
+    };
   };
 
   propagatedBuildInputs = [
