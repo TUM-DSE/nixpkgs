@@ -37,5 +37,5 @@ callPackage ./generic.nix args {
     nixosTests.zfs.unstable
   ];
 
-  hash = "sha256-uzU066kidFO7N2H+GkkjxFGhHy0ygMAu4JJPn/+AgMo=";
+  hash = "sha256-b4vQYTDz8nU9WjgXsv+yc0JIHCL7TAS5Yz6HFGsFPSM=";
 }
