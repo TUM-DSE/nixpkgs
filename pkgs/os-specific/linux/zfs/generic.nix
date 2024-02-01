@@ -80,6 +80,7 @@ let
         nfs-utils.override (old: { enablePython = old.enablePython or true && enablePython; })
       }/bin/exportfs"
       substituteInPlace ./lib/libshare/smb.h        --replace "/usr/bin/net"            "${samba}/bin/net"
+      substituteInPlace ./META                      --replace "CDDL"                    "GPL"
       # Disable dynamic loading of libcurl
       substituteInPlace ./config/user-libfetch.m4   --replace "curl-config --built-shared" "true"
       substituteInPlace ./config/user-systemd.m4    --replace "/usr/lib/modules-load.d" "$out/etc/modules-load.d"
