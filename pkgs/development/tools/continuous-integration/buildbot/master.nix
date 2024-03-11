@@ -8,6 +8,7 @@
 , buildbot
 , pythonOlder
 , python
+, pythonRelaxDepsHook
 , twisted
 , jinja2
 , msgpack
@@ -168,6 +169,14 @@ buildPythonApplication rec {
       broken = stdenv.isDarwin;
     };
   };
+
+  build-system = [
+    pythonRelaxDepsHook
+  ];
+
+  pythonRelaxDeps = [
+    "twisted"
+  ];
 
   propagatedBuildInputs = [
     # core
