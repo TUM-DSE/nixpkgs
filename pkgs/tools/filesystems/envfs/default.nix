@@ -1,14 +1,14 @@
 { rustPlatform, lib, fetchFromGitHub, nixosTests }:
 rustPlatform.buildRustPackage rec {
   pname = "envfs";
-  version = "1.0.3";
+  version = "1.0.5";
   src = fetchFromGitHub {
     owner = "Mic92";
     repo = "envfs";
     rev = version;
-    hash = "sha256-WbMqh/MzEMfZmKl/DNBGnzG3l8unFmAYbG6feSiMz+Y=";
+    hash = "sha256-PUCgqRuQ1tSM5eZIDZS+DnxuYpwdL+8xxSuFFvSocQI=";
   };
-  cargoHash = "sha256-RoreNBZvTsVY87nbVibJBy4gsafFwAMctVncAhhiaP8=";
+  cargoHash = "sha256-tZNsXO8VJO+aaTwFn8sDldTrDoK2dI+nuxUxKmhBufc=";
 
   passthru.tests = {
     envfs = nixosTests.envfs;
