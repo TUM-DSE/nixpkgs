@@ -8,16 +8,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "nix-ld";
-  version = "2.0.0";
+  version = "2.0.2";
 
   src = fetchFromGitHub {
     owner = "mic92";
     repo = "nix-ld";
     rev = version;
-    hash = "sha256-rmSXQ4MYQe/OFDBRlqqw5kyp9b/aeEg0Fg9c167xofg=";
+    hash = "sha256-N0rXDMTzDCdMUIMGZpGi04iptUXX3MZcVTshMNkJCSM=";
   };
 
-  cargoHash = "sha256-w6CQx9kOyBtM2nMwdFb+LtU4oHVEYrTNVmH1A6R5DH0=";
+  cargoHash = "sha256-deh+gFshOTe+Zxd1epHjVoceBtunjp0QcRW/Y4FBKzI=";
 
   hardeningDisable = [ "stackprotector" ];
 
