@@ -159,6 +159,8 @@ let
         tigerlake      = versionAtLeast ccVersion "10.0";
         knm            = versionAtLeast ccVersion "8.0";
         alderlake      = versionAtLeast ccVersion "12.0";
+        sapphirerapids = versionAtLeast ccVersion "11.0";
+        emeraldrapids  = versionAtLeast ccVersion "13.0";
 
         # AMD
         znver1         = versionAtLeast ccVersion "6.0";
@@ -178,6 +180,8 @@ let
         icelake-server = versionAtLeast ccVersion "7.0";
         knm            = versionAtLeast ccVersion "7.0";
         alderlake      = versionAtLeast ccVersion "16.0";
+        sapphirerapids = versionAtLeast ccVersion "12.0";
+        emeraldrapids  = versionAtLeast ccVersion "16.0";
 
         # AMD
         znver1         = versionAtLeast ccVersion "4.0";
