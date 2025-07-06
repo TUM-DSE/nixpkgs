@@ -125,6 +125,7 @@ stdenv.mkDerivation {
     makeWrapper
     pkg-config
     python3
+    perl
   ];
 
   buildInputs = [
@@ -137,7 +138,6 @@ stdenv.mkDerivation {
     openssl
     numactl
     python3
-    perl
     babeltrace
   ]
   ++ (
