@@ -5,6 +5,7 @@
   btrfs-progs,
   buildGoModule,
   fetchFromGitHub,
+  glibc,
   go-md2man,
   kubernetes,
   nix-update-script,
@@ -42,7 +43,8 @@ buildGoModule rec {
   ]
   ++ lib.optional withMan go-md2man;
 
-  buildInputs = lib.optional btrfsSupport btrfs-progs;
+  buildInputs = lib.optional btrfsSupport btrfs-progs
+    ++ lib.optionals (stdenv.hostPlatform.isLinux && stdenv.hostPlatform.isGnu) [ glibc glibc.static ];
 
   tags = lib.optional (!btrfsSupport) "no_btrfs";
 
