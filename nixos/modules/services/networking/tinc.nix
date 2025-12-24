@@ -461,7 +461,7 @@ in
         let
           cli-wrappers = pkgs.stdenv.mkDerivation {
             name = "tinc-cli-wrappers";
-            nativeBuildInputs = [ pkgs.makeWrapper ];
+            nativeBuildInputs = [ pkgs.buildPackages.makeWrapper ];
             buildCommand = ''
               mkdir -p $out/bin
               ${concatStringsSep "\n" (
