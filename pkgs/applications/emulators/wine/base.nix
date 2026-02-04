@@ -18,7 +18,7 @@
   pkg-config,
   nixosTests,
   supportFlags,
-  wineRelease,
+  pnameSuffix ? "",
   patches,
   moltenvk,
   buildScript ? null,
@@ -95,9 +95,7 @@ stdenv.mkDerivation (
   // {
     inherit version src;
 
-    pname =
-      prevName
-      + lib.optionalString (wineRelease != "stable" && wineRelease != "unstable") "-${wineRelease}";
+    pname = prevName + pnameSuffix;
 
     # Fixes "Compiler cannot create executables" building wineWow with mingwSupport
     strictDeps = true;
