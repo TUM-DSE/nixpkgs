@@ -8,6 +8,7 @@
   hash,
   patches ? [ ],
   broken ? false,
+  mlnx_ofed,
 }:
 
 stdenv.mkDerivation (
@@ -25,6 +26,42 @@ stdenv.mkDerivation (
     inherit patches;
 
     nativeBuildInputs = kernel.moduleBuildDependencies;
+
+      postPatch = ''
+    substituteInPlace kernel-open/nvidia-peermem/nvidia-peermem.Kbuild kernel-open/conftest.sh \
+      --replace-fail "/usr/src/ofa_kernel" \
+      "${mlnx_ofed}/lib/modules/${kernel.modDirVersion}/extra/mlnx-ofa_kernel"
+    substituteInPlace kernel-open/conftest.sh \
+  --replace-fail \
+  "if check_for_ib_peer_memory_symbols \"\$OUTPUT\" || \\" \
+  "if check_for_ib_peer_memory_symbols \"\$OUTPUT\" || check_for_ib_peer_memory_symbols \"\$MLNX_OFED_KERNEL_DIR\"; then"
+substituteInPlace kernel-open/conftest.sh \
+  --replace-fail \
+  "           check_for_ib_peer_memory_symbols \"\$MLNX_OFED_KERNEL_DIR/\$ARCH/\$KERNELRELEASE\" || \\" \
+  ""
+substituteInPlace kernel-open/conftest.sh \
+  --replace-fail \
+  "           check_for_ib_peer_memory_symbols \"\$MLNX_OFED_KERNEL_DIR/\$KERNELRELEASE\" || \\" \
+  ""
+substituteInPlace kernel-open/conftest.sh \
+  --replace-fail \
+  "           check_for_ib_peer_memory_symbols \"\$MLNX_OFED_KERNEL_DIR/default\" || \\" \
+  ""
+substituteInPlace kernel-open/conftest.sh \
+  --replace-fail \
+  "           check_for_ib_peer_memory_symbols \"\$VAR_DKMS_SOURCES_DIR\"; then" \
+  ""
+  substituteInPlace kernel-open/conftest.sh \
+  --replace-fail \
+  '#!/bin/sh' \
+  $'#!/bin/sh\nset -x'
+    #substituteInPlace kernel-open/conftest.sh \
+    #  --replace-fail "/usr/src/ofa_kernel" \
+    #  "${mlnx_ofed}/lib/modules/${kernel.modDirVersion}/extra/mlnx-ofa_kernel"
+       # Verify the patch was applied
+      grep -n "OFA_DIR" kernel-open/nvidia-peermem/nvidia-peermem.Kbuild
+      grep -n "MLNX_OFED_KERNEL_DIR" kernel-open/conftest.sh
+  '';
 
     makeFlags =
       kernelModuleMakeFlags
