@@ -78,5 +78,18 @@ in
   		install -Dm644 Module.symvers $out/lib/modules/${kernel.modDirVersion}/extra/mlnx-ofa_kernel/Module.symvers
     # Copy in out the include dir
       cp -r include $out/lib/modules/${kernel.modDirVersion}/extra/mlnx-ofa_kernel
+
+        # Give mlnx-ofa_kernel modules priority over in-tree drivers
+  install -Dm644 /dev/stdin \
+    $out/lib/depmod.d/mlnx-ofa_kernel.conf << EOF
+  override mlx5_core * extra/mlnx-ofa_kernel
+  override mlx5_ib * extra/mlnx-ofa_kernel
+  override ib_core * extra/mlnx-ofa_kernel
+  override ib_uverbs * extra/mlnx-ofa_kernel
+  override rdma_cm * extra/mlnx-ofa_kernel
+  override iw_cm * extra/mlnx-ofa_kernel
+  override ib_cm * extra/mlnx-ofa_kernel
+  override ib_umad * extra/mlnx-ofa_kernel
+  EOF
     '';
   }
