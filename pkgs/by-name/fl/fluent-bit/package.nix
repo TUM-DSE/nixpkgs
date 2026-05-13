@@ -67,7 +67,6 @@ stdenv.mkDerivation (finalAttrs: {
     libbacktrace
     libpq
     libyaml
-    luajit
     msgpack-c
     nghttp2.dev
     openssl
@@ -75,6 +74,7 @@ stdenv.mkDerivation (finalAttrs: {
     sqlite.dev
     zstd
   ]
+  ++ lib.optional (!stdenv.hostPlatform.isRiscV64) luajit
   ++ lib.optionals stdenv.hostPlatform.isLinux [
     # libbpf doesn't build for Darwin yet.
     libbpf
@@ -84,6 +84,7 @@ stdenv.mkDerivation (finalAttrs: {
   cmakeFlags = [
     (lib.cmakeBool "FLB_RELEASE" true)
     (lib.cmakeBool "FLB_PREFER_SYSTEM_LIBS" true)
+    (lib.cmakeBool "FLB_LUAJIT" (!stdenv.hostPlatform.isRiscV64))
   ]
   ++ lib.optionals stdenv.cc.isClang [
     # `FLB_SECURITY` causes bad linker options for Clang to be set.
