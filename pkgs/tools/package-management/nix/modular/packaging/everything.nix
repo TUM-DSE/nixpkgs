@@ -176,8 +176,13 @@ stdenv.mkDerivation (finalAttrs: {
       done
 
       # Forwarded outputs
-      ln -sT ${nix-manual} $doc
-      ln -sT ${nix-manual.man} $man
+      ${lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
+        ln -sT ${nix-manual} $doc
+        ln -sT ${nix-manual.man} $man
+      ''}
+      ${lib.optionalString (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
+        mkdir -p $doc $man
+      ''}
     '';
 
   passthru = {

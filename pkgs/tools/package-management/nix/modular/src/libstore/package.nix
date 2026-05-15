@@ -54,6 +54,12 @@ mkMesonLibrary (finalAttrs: {
   ]
   ++ lib.optionals stdenv.hostPlatform.isLinux [
     (lib.mesonOption "sandbox-shell" "${busybox-sandbox-shell}/bin/busybox")
+  ]
+  # aws-crt-cpp uses cmake for dependency lookup which fails in cross
+  # builds because cmake for the host platform is not available.
+  # s3-aws-auth option was added in nix 2.33.
+  ++ lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform && lib.versionAtLeast (lib.versions.majorMinor version) "2.33") [
+    (lib.mesonEnable "s3-aws-auth" false)
   ];
 
   meta = {
