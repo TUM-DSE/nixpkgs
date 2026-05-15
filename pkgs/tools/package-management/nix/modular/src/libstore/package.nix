@@ -77,8 +77,10 @@ mkMesonLibrary (finalAttrs: {
     (lib.mesonEnable "seccomp-sandboxing" stdenv.hostPlatform.isLinux)
     (lib.mesonBool "embedded-sandbox-shell" embeddedSandboxShell)
   ]
+  # aws-crt-cpp uses cmake for dependency lookup which fails in cross
+  # builds because cmake for the host platform is not available.
   ++ lib.optional (lib.versionAtLeast (lib.versions.majorMinor version) "2.33") (
-    lib.mesonEnable "s3-aws-auth" withAWS
+    lib.mesonEnable "s3-aws-auth" (withAWS && stdenv.hostPlatform == stdenv.buildPlatform)
   )
   ++ lib.optionals withSandboxShell [
     (lib.mesonOption "sandbox-shell" sandboxShell)
