@@ -165,6 +165,13 @@ stdenv.mkDerivation (finalAttrs: {
     CI = 1;
     # really skip them all https://github.com/fish-shell/fish-shell/issues/12253#issuecomment-3707996020
     FISH_CI_SAN = 1;
+  }
+  // lib.optionalAttrs (stdenv.buildPlatform != stdenv.hostPlatform) {
+    # The cargo workspace also compiles xtask for the build platform, whose
+    # pcre2-sys would otherwise pick up the target pcre2 from the ambient
+    # PKG_CONFIG_PATH and fail to link.
+    "PKG_CONFIG_PATH_${stdenv.buildPlatform.rust.rustcTarget}" =
+      "${buildPackages.pcre2.dev}/lib/pkgconfig";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
