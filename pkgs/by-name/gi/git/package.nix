@@ -193,6 +193,12 @@ stdenv.mkDerivation (finalAttrs: {
     cargo
     rustc
   ];
+
+  # Cargo compiles and links build scripts (and proc macros) for the build
+  # platform with plain `cc`, which the cross stdenv does not provide.
+  depsBuildBuild = lib.optionals (rustSupport && (stdenv.buildPlatform != stdenv.hostPlatform)) [
+    buildPackages.stdenv.cc
+  ];
   buildInputs = [
     curl
     openssl
@@ -212,11 +218,6 @@ stdenv.mkDerivation (finalAttrs: {
     libsecret
   ];
 
-  # This is required for building the rust build.rs script when cross compiling
-  depsBuildBuild = lib.optionals (stdenv.buildPlatform != stdenv.hostPlatform) [
-    buildPackages.stdenv.cc
-  ];
-
   env = {
     # required to support pthread_cancel()
     NIX_LDFLAGS =
@@ -226,6 +227,7 @@ stdenv.mkDerivation (finalAttrs: {
   // lib.attrsets.optionalAttrs (rustSupport && (stdenv.buildPlatform != stdenv.hostPlatform)) {
     # Rust cross-compilation
     CARGO_BUILD_TARGET = stdenv.hostPlatform.rust.rustcTargetSpec;
+    "CARGO_TARGET_${stdenv.hostPlatform.rust.cargoEnvVarTarget}_LINKER" = "${stdenv.cc.targetPrefix}cc";
   };
 
   configureFlags = [
