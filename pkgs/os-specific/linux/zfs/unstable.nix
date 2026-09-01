@@ -16,20 +16,18 @@ callPackage ./generic.nix args {
   # IMPORTANT: Always use a tagged release candidate or commits from the
   # zfs-<version>-staging branch, because this is tested by the OpenZFS
   # maintainers.
-  version = "2.4.4";
-  # rev = "";
+  # Using master because it has FIDEDUPERANGE support merged.
+  version = "2.4.99-unstable-2026-09-01";
+  rev = "013d73a9bfcbcffbbc3010a912fe3d6c501a9634";
 
   # if adding a patch here, check if it also needs to be applied to the stable branches
-  extraPatches = [
-    # FIDEDUPERANGE support, sent upstream
-    ./fideduperange.patch
-  ];
+  extraPatches = [ ];
 
   tests = {
     inherit (nixosTests.zfs) unstable;
   };
 
-  hash = "sha256-ZgfHTPsNoeDq6GKP4Xiti7Keis3vIZLDaTGQjgCItIc=";
+  hash = "sha256-hRL1iOymDMq1G/MXtChMUZy7TwNuRFa6SmqaXMpG9fc=";
 
   extraLongDescription = ''
     This is "unstable" ZFS, and will usually be a pre-release version of ZFS.
