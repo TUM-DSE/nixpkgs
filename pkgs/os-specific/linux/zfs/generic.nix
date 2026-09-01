@@ -111,7 +111,13 @@ let
             --replace-fail '"/usr/bin/env", "mount"'  '"${util-linux}/bin/mount", "-n"'
         ''
         + optionalString buildUser ''
-          substituteInPlace ./lib/libshare/os/linux/nfs.c --replace-fail "/usr/sbin/exportfs" "${
+          # libshare was merged into libzfs after 2.4 (openzfs/zfs#17452)
+          substituteInPlace ${
+            if lib.versionAtLeast version "2.4.99" then
+              "./lib/libzfs/os/linux/libzfs_share_nfs.c"
+            else
+              "./lib/libshare/os/linux/nfs.c"
+          } --replace-fail "/usr/sbin/exportfs" "${
             # We don't *need* python support, but we set it like this to minimize closure size:
             # If it's disabled by default, no need to enable it, even if we have python enabled
             # And if it's enabled by default, only change that if we explicitly disable python to remove python from the closure
@@ -119,7 +125,12 @@ let
               enablePython = old.enablePython or true && enablePython;
             })
           }/bin/exportfs"
-          substituteInPlace ./lib/libshare/smb.h        --replace-fail "/usr/bin/net"            "/run/current-system/sw/bin/net"
+          substituteInPlace ${
+            if lib.versionAtLeast version "2.4.99" then
+              "./lib/libzfs/libzfs_share.h"
+            else
+              "./lib/libshare/smb.h"
+          } --replace-fail "/usr/bin/net"            "/run/current-system/sw/bin/net"
           # Disable dynamic loading of libcurl
           substituteInPlace ./config/user-libfetch.m4   --replace-fail "curl-config --built-shared" "true"
           substituteInPlace ./config/user-systemd.m4    --replace-fail "/usr/lib/modules-load.d" "$out/etc/modules-load.d"
