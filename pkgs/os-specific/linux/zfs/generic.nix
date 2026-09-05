@@ -104,6 +104,10 @@ let
       postPatch =
         optionalString buildKernel ''
           patchShebangs scripts
+        ''
+        # 2.5 automounts snapshots in-kernel instead of exec'ing mount/umount
+        # via a usermode helper, so there is nothing left to patch there.
+        + optionalString (buildKernel && lib.versionOlder version "2.4.99") ''
           # The arrays must remain the same length, so we repeat a flag that is
           # already part of the command and therefore has no effect.
           substituteInPlace ./module/os/linux/zfs/zfs_ctldir.c \
