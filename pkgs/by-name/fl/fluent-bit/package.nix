@@ -86,10 +86,23 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.cmakeBool "FLB_PREFER_SYSTEM_LIBS" true)
     (lib.cmakeBool "FLB_LUAJIT" (!stdenv.hostPlatform.isRiscV64))
   ]
+  ++ lib.optionals stdenv.hostPlatform.isRiscV64 [
+    # Auto would raise the baseline to rv64gcv_zba
+    (lib.cmakeFeature "FLB_SIMD" "Off")
+  ]
   ++ lib.optionals stdenv.cc.isClang [
     # `FLB_SECURITY` causes bad linker options for Clang to be set.
     (lib.cmakeBool "FLB_SECURITY" false)
   ];
+
+  # libco has no riscv64 asm backend and falls back to sjlj, whose
+  # sigaltstack/SIGUSR1 trick corrupts the coroutine context in
+  # fluent-bit's threaded engine (and trips fortified longjmp_chk).
+  # The ucontext backend is slow but correct.
+  postPatch = lib.optionalString stdenv.hostPlatform.isRiscV64 ''
+    substituteInPlace lib/flb_libco/libco.c \
+      --replace-fail '#include "sjlj.c"' '#include "ucontext.c"'
+  '';
 
   # `src/CMakeLists.txt` installs fluent-bit's systemd unit files at the path in the `SYSTEMD_UNITDIR` CMake variable.
   #
