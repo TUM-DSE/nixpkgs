@@ -9,18 +9,19 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "userborn";
-  version = "0.5.0";
+  version = "1.0.1-unstable-2026-09-13";
 
+  # nikstur/userborn#61 (id ranges) + #72 (expires), not yet released
   src = fetchFromGitHub {
-    owner = "nikstur";
+    owner = "Mic92";
     repo = "userborn";
-    rev = finalAttrs.version;
-    hash = "sha256-mXXakR75Iz6AFf/TYgIHE8SxOri2HyReYUYTT3lCEPA=";
+    rev = "31c668dac1d40670314659bacf7a36bc1b0c7a3f";
+    hash = "sha256-qxkWJHseTMEc9VATPOj9Qw5+vCJnk5cFgK662Z3dzXs=";
   };
 
   sourceRoot = "${finalAttrs.src.name}/rust/userborn";
 
-  cargoHash = "sha256-uAid5GsM9lasVQAYfeo9jwp4xg1MrXdJqtD0l6ME6OQ=";
+  cargoHash = "sha256-7EQy87KF3Tb32jf/iU+oALlHIrVj4mFBzYdEoJHOPJM=";
 
   nativeBuildInputs = [ rustPlatform.bindgenHook ];
 

@@ -35,6 +35,7 @@ in
         normalo = {
           isNormalUser = true;
           password = normaloPassword;
+          expires = "2000-01-01";
         };
         sysuser = {
           isSystemUser = true;
@@ -48,6 +49,7 @@ in
     };
 
     specialisation.new-generation.configuration = {
+      security.loginDefs.settings.UID_MIN = 5000;
       users = {
         users = {
           root = {
@@ -58,6 +60,7 @@ in
           };
           normalo = {
             hashedPassword = updatedNormaloHashedPassword;
+            expires = lib.mkForce null;
           };
           sysuser = {
             initialHashedPassword = lib.mkForce updatedSysuserInitialHashedPassword;
@@ -95,6 +98,10 @@ in
       assert 1000 <= int(machine.succeed("id --user normalo")), "normalo user doesn't have a normal UID"
       assert machine.succeed("stat -c '%U' /home/normalo") == "normalo\n"
 
+    with subtest("normalo account is expired"):
+      assert ":10957:" in machine.succeed("getent shadow normalo")
+      machine.fail("su -s /bin/sh - sysuser -c 'echo ${normaloPassword} | su - normalo -c true'")
+
     with subtest("system user is created with correct password"):
       print(machine.succeed("getent passwd sysuser"))
       assert 1000 > int(machine.succeed("id --user sysuser")), "sysuser user doesn't have a system UID"
@@ -123,6 +130,7 @@ in
     with subtest("normalo user password is updated"):
       print(machine.succeed("getent passwd normalo"))
       assert "${updatedNormaloHashedPassword}" in machine.succeed("getent shadow normalo"), "normalo user password is not updated"
+      assert ":10957:" not in machine.succeed("getent shadow normalo"), "normalo expiry not cleared"
 
     with subtest("system user password is NOT updated"):
       print(machine.succeed("getent passwd sysuser"))
@@ -130,7 +138,7 @@ in
 
     with subtest("new-normalo user is created after switching to new generation"):
       print(machine.succeed("getent passwd new-normalo"))
-      assert 1000 <= int(machine.succeed("id --user new-normalo")), "new-normalo user doesn't have a normal UID"
+      assert 5000 <= int(machine.succeed("id --user new-normalo")), "new-normalo UID not allocated from UID_MIN"
       assert machine.succeed("stat -c '%U' /home/new-normalo") == "new-normalo\n"
       assert "${newNormaloHashedPassword}" in machine.succeed("getent shadow new-normalo"), "new-normalo user password is not correct"
 
