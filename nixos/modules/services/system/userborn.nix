@@ -11,7 +11,17 @@ let
   cfg = config.services.userborn;
   userCfg = config.users;
 
+  loginDefs = config.security.loginDefs.settings;
+
   userbornConfig = {
+    normalUidRange = {
+      min = loginDefs.UID_MIN;
+      max = loginDefs.UID_MAX;
+    };
+    normalGidRange = {
+      min = loginDefs.GID_MIN;
+      max = loginDefs.GID_MAX;
+    };
     groups = lib.mapAttrsToList (username: opts: {
       inherit (opts) name gid members;
     }) config.users.groups;
@@ -23,6 +33,7 @@ let
         group
         description
         home
+        expires
         password
         hashedPassword
         hashedPasswordFile
