@@ -42,6 +42,15 @@ let
         ;
       isNormal = opts.isNormalUser;
       shell = utils.toShellPath opts.shell;
+      autoSubIdRange = opts.autoSubUidGidRange;
+      subUidRanges = map (r: {
+        start = r.startUid;
+        inherit (r) count;
+      }) opts.subUidRanges;
+      subGidRanges = map (r: {
+        start = r.startGid;
+        inherit (r) count;
+      }) opts.subGidRanges;
     }) (lib.filterAttrs (_: u: u.enable) config.users.users);
   };
 
