@@ -68,6 +68,18 @@ in
           new-normalo = {
             isNormalUser = true;
             hashedPassword = newNormaloHashedPassword;
+            subUidRanges = [
+              {
+                startUid = 300000;
+                count = 65536;
+              }
+            ];
+            subGidRanges = [
+              {
+                startGid = 300000;
+                count = 65536;
+              }
+            ];
           };
           normalo-disabled = {
             enable = false;
@@ -97,6 +109,10 @@ in
       print(machine.succeed("getent passwd normalo"))
       assert 1000 <= int(machine.succeed("id --user normalo")), "normalo user doesn't have a normal UID"
       assert machine.succeed("stat -c '%U' /home/normalo") == "normalo\n"
+
+    with subtest("normalo gets an auto-allocated subid range"):
+      assert "normalo:100000:65536" in machine.succeed("cat /etc/subuid")
+      assert "normalo:100000:65536" in machine.succeed("cat /etc/subgid")
 
     with subtest("normalo account is expired"):
       assert ":10957:" in machine.succeed("getent shadow normalo")
@@ -141,6 +157,10 @@ in
       assert 5000 <= int(machine.succeed("id --user new-normalo")), "new-normalo UID not allocated from UID_MIN"
       assert machine.succeed("stat -c '%U' /home/new-normalo") == "new-normalo\n"
       assert "${newNormaloHashedPassword}" in machine.succeed("getent shadow new-normalo"), "new-normalo user password is not correct"
+
+    with subtest("explicit subid ranges are written"):
+      assert "new-normalo:300000:65536" in machine.succeed("cat /etc/subuid")
+      assert "new-normalo:300000:65536" in machine.succeed("cat /etc/subgid")
 
     with subtest("new-group group is created after switching to new generation"):
       print(machine.succeed("getent group new-group"))
